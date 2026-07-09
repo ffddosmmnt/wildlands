@@ -11,11 +11,9 @@ skill_id = "crafting"
 xp_reward = 15.0
 slots = [{
 "accepts_tag": "sharp_material",
-"count": 1,
 "slot_id": "tip"
 }, {
 "accepts_tag": "handle_material",
-"count": 1,
 "slot_id": "handle"
 }]
 stat_formulas = {

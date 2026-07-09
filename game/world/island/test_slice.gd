@@ -17,6 +17,8 @@ func _ready() -> void:
 
 	print("=== Wildlands foundation slice ===")
 
+	_check(Database.validate().is_empty(), "data validation clean")
+
 	# --- Spear A: poor materials (small bone tip + soft wood handle) ---
 	var tip_a := _gather_one("carcass_small")
 	var handle_a := _gather_one("tree_basic")
@@ -43,6 +45,10 @@ func _ready() -> void:
 		"crafting skill gained XP (learn-by-doing)")
 	_check(SkillSystem.get_xp("gathering") > 0.0 or SkillSystem.get_level("gathering") > 0,
 		"gathering skill gained XP (learn-by-doing)")
+
+	# --- Combat: the crafted spear is equippable and damages a dummy target ---
+	print("\n-- Combat (equipment-driven, same spears) --")
+	_run_combat_checks(spear_a, spear_b)
 
 	print("\ncrafting skill: L%d (%.1f xp)   gathering skill: L%d (%.1f xp)" % [
 		SkillSystem.get_level("crafting"), SkillSystem.get_xp("crafting"),
@@ -87,6 +93,64 @@ func _print_spear(label: String, spear: ItemInstance) -> void:
 	print("  %s -> damage %.1f | durability %.1f | weight %.1f | atk_speed %.2f" % [
 		label, spear.get_stat("damage"), spear.get_stat("durability"),
 		spear.get_stat("weight"), spear.get_stat("attack_speed")])
+
+
+func _run_combat_checks(spear_a: ItemInstance, spear_b: ItemInstance) -> void:
+	if spear_a == null or spear_b == null:
+		_check(false, "combat: crafted spears available")
+		return
+
+	var player := CombatEntity.from_stats({
+		"name": "Player", "health": 100, "stamina": 100, "attack": 5, "defense": 2})
+	var dummy := CombatEntity.from_stats({
+		"name": "Dummy", "health": 200, "stamina": 0, "attack": 0, "defense": 3})
+
+	# ACCEPTANCE: equip the crafted spear, strike within reach, dummy takes damage.
+	player.equip(spear_b)
+	var reach: float = CombatSystem.resolve_weapon(spear_b)["range"]
+	var hp_before := dummy.health
+	var res := CombatSystem.attack(player, dummy, reach - 0.5)
+	_check(res.hit and res.damage > 0.0, "equipped spear damages dummy target")
+	_check(dummy.health < hp_before, "dummy health decreased by the hit")
+
+	# Reach advantage: beyond the spear's range the same strike whiffs.
+	var res_far := CombatSystem.attack(player, dummy, reach + 2.0)
+	_check(not res_far.hit and res_far.reason == "out_of_range",
+		"out of range -> no damage (reach matters)")
+
+	# Material affects damage: the better spear hits harder (isolated hit).
+	_check(_hit_damage(spear_b) > _hit_damage(spear_a),
+		"better materials -> more combat damage")
+
+	# Attack timing is material-driven: heavier spear swings slower.
+	_check(CombatSystem.cooldown(spear_b) > CombatSystem.cooldown(spear_a),
+		"heavier spear -> longer attack cooldown")
+
+	# Durability: striking wears the weapon down.
+	var dura_before := spear_b.get_stat("durability")
+	CombatSystem.attack(player, dummy, reach - 0.5)
+	_check(spear_b.get_stat("durability") < dura_before,
+		"attacking reduces weapon durability")
+
+	# Stamina gates attacks: a drained fighter can't strike.
+	player.stamina = 0.0
+	var res_tired := CombatSystem.attack(player, dummy, reach - 0.5)
+	_check(not res_tired.hit and res_tired.reason == "no_stamina",
+		"no stamina -> cannot attack (preparation matters)")
+
+	print("  spear_b: dmg %.1f | reach %.1f | cooldown %.2fs | dura now %.1f | dummy hp %.1f/%.1f" % [
+		CombatSystem.resolve_weapon(spear_b)["damage"], reach, CombatSystem.cooldown(spear_b),
+		spear_b.get_stat("durability"), dummy.health, dummy.max_health])
+
+
+## Damage a fresh attacker deals with `spear` against a fixed-defense target,
+## isolating the weapon's contribution.
+func _hit_damage(spear: ItemInstance) -> float:
+	var atk := CombatEntity.from_stats({"stamina": 100, "attack": 5})
+	atk.equip(spear)
+	var target := CombatEntity.from_stats({"health": 9999, "defense": 3})
+	var reach: float = CombatSystem.resolve_weapon(spear)["range"]
+	return CombatSystem.attack(atk, target, reach - 0.1).damage
 
 
 func _check(condition: bool, label: String) -> void:

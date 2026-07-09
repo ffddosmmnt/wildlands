@@ -13,6 +13,10 @@ extends Resource
 ## XP required for level 1. Each level costs xp_base * (xp_growth ^ level).
 @export var xp_base: float = 100.0
 @export var xp_growth: float = 1.35
+## Normalized bonus this skill contributes per level (folded into gathering/
+## crafting/combat formulas). Per-skill so each skill scales differently,
+## instead of a flat rate hardcoded in SkillSystem.
+@export var bonus_per_level: float = 0.02
 ## level -> Array of unlocked recipe ids (or other unlock payloads).
 @export var unlock_table: Dictionary = {}
 

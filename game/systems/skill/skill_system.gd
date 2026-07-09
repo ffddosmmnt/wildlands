@@ -57,6 +57,9 @@ func get_xp(skill_id: String) -> float:
 
 
 ## A normalized bonus (0.0+) other systems fold into their formulas,
-## e.g. crafting quality or gathering yield. 0.02 per level by default.
+## e.g. crafting quality or gathering yield. Rate is data-driven per skill
+## (SkillDef.bonus_per_level).
 func get_bonus(skill_id: String) -> float:
-	return get_level(skill_id) * 0.02
+	var def := Database.get_skill(skill_id)
+	var per_level: float = def.bonus_per_level if def != null else 0.0
+	return get_level(skill_id) * per_level

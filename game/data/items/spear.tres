@@ -9,6 +9,8 @@ display_name = "Spear"
 description = "Long reach, safer hunting, strong against large creatures. Slow."
 type = "item"
 tags = Array[String](["weapon", "spear"])
-properties = {}
+properties = {
+"range": 3.0
+}
 category = "weapon"
 material_slots = Array[String](["tip", "handle"])

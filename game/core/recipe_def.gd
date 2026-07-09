@@ -19,8 +19,8 @@ extends Resource
 ##   {
 ##     "slot_id":     "tip",              # bound as a variable in formulas
 ##     "accepts_tag": "sharp_material",   # instance def must have this tag
-##     "count":       1,
 ##   }
+## (Multi-count slots land with consume-on-craft + the crafting UI, not before.)
 @export var slots: Array[Dictionary] = []
 
 ## output stat name -> formula string evaluated with Godot's Expression.
