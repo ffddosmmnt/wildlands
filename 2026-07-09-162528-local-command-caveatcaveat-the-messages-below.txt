@@ -1,0 +1,524 @@
+ ▐▛███▜▌   Claude Code v2.1.205
+▝▜█████▛▘  Opus 4.8 · Claude Pro
+  ▘▘ ▝▝    ~/projects/wildlands
+
+ ▎ Extended: Fable 5 is included in your weekly limit
+ ▎ Through July 12, you can use up to 50% of your weekly usage limit on Fable 5. If you hit your limit, you can continue on Fable 5 with usage credits. Fable 5 draws down usage faster than Opus 4.8. Run /model and select Fable to use it. Learn more (https://support.claude.com/en/articles/15424964-claude-fable-5-promotional-access)
+
+❯ /agents                                                                       
+  ⎿  The /agents wizard has been removed.
+
+     Ask Claude to create or update subagents for you (e.g. "create a code-reviewer subagent that ..."),
+     or edit the files directly:
+       • .claude/agents/       (this project)
+       • ~/.claude/agents/     (all projects)
+
+     Docs: https://code.claude.com/docs/en/sub-agents
+
+❯ /model                                                                        
+  ⎿  Set model to Opus 4.8 and saved as your default for new sessions
+
+❯ /agents                                                                       
+  ⎿  The /agents wizard has been removed.
+
+     Ask Claude to create or update subagents for you (e.g. "create a code-reviewer subagent that ..."),
+     or edit the files directly:
+       • .claude/agents/       (this project)
+       • ~/.claude/agents/     (all projects)
+
+     Docs: https://code.claude.com/docs/en/sub-agents
+
+❯ /plan                                                                         
+  ⎿  Enabled plan mode
+
+⏺ Auto mode lets Claude handle permission prompts automatically — Claude
+  checks each tool call for risky actions and prompt injection before 
+  executing. Actions Claude identifies as safe are executed, while 
+  actions Claude identifies as risky are blocked and Claude may try a 
+  different approach. Ideal for long-running tasks. Sessions are 
+  slightly more expensive. Claude can make mistakes that allow harmful 
+  commands to run, it's recommended to only use in isolated 
+  environments. Shift+Tab to change mode.
+
+❯ Before writing any code, read and understand this entire project.             
+                                                                                
+  Read:                                                                         
+  - CLAUDE.md                                                                   
+  - docs/TASK.md                                                                
+  - docs/GAME_DESIGN.md                                                         
+  - docs/DATA_SCHEMA.md                                                         
+                                                                                
+  You are onboarding into this project as the technical team.                   
+                                                                                
+  DO NOT implement anything yet.                                                
+                                                                                
+  Your task:                                                                    
+                                                                                
+  1. Analyze the project vision.                                                
+  2. Understand the Durango: Wild Lands inspired system philosophy.             
+  3. Review the planned architecture.                                           
+  4. Identify the required core systems for V1.                                 
+  5. Create a detailed implementation roadmap.                                  
+                                                                                
+  Focus on:                                                                     
+  - scalable data-driven architecture                                           
+  - material property system                                                    
+  - crafting foundation                                                         
+  - entity system                                                               
+  - creature framework                                                          
+  - combat foundation                                                           
+  - save/load architecture                                                      
+                                                                                
+  Remember:                                                                     
+  V1 goal is not a tech demo.                                                   
+                                                                                
+  V1 must become a playable 30-60 minute survival loop.                         
+                                                                                
+  After analysis, create:                                                       
+  docs/IMPLEMENTATION_PLAN.md                                                   
+                                                                                
+  Do not modify the Godot project yet.                                          
+  Do not create scripts yet.                                                    
+  Only plan.                                                                    
+
+⏺ I'll start by understanding the project structure and reading the key
+  documents. Let me explore.
+
+  Read 1 file, listed 1 directory (ctrl+o to expand)
+
+⏺ The docs are in documents/ not docs/. Let me read all the design documents.
+
+  Read 5 files (ctrl+o to expand)
+
+⏺ I've now read the full vision. This is a fresh, empty Godot 4.7 project — no
+  scripts, no scenes, just the default icon and empty asset folders. So there's
+  nothing in the codebase to explore; all the design intent lives in the three
+  docs I just read. I'll skip Explore/Plan subagents (empty repo — they'd just
+  re-read the same docs) and design the roadmap directly, which is my job here
+  as technical director.
+
+  Before I write the plan, two decisions genuinely fork the architecture and the
+  docs leave them open. Let me confirm them with you rather than guess.
+  ⎿  Invalid tool parameters
+
+⏺ User answered Claude's questions:
+  ⎿  · How should game content (items, materials, creatures, recipes, biomes) be
+     authored? This is the backbone of the whole data-driven architecture. → 
+     Godot custom Resources (.tres)
+     · Which scripting language for V1 systems? → GDScript
+
+⏺ Both confirmed: Godot custom Resources (.tres) + GDScript. Everything I need
+  is settled. Let me write the roadmap to the plan file.
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ The plan is written. Here's the summary before you approve.
+
+  What I found
+
+  The repo is a fresh, empty Godot 4.7 project — just the default icon and empty
+  assets/, tools/, game/ folders. No code exists yet, so all the design intent
+  comes from the four docs in documents/. There was nothing in the codebase to
+  explore, so I skipped subagents and designed the roadmap directly.
+
+  The deliverable
+
+  This is a planning-only task. The one output is a design document —
+  documents/IMPLEMENTATION_PLAN.md (TASK.md said docs/, but your repo uses
+  documents/). No Godot code, no scenes.
+
+  The architecture I'm recommending
+
+  Eight foundational decisions, in priority order:
+  1. Flyweight — shared .tres Definitions vs unique runtime Instances. This is
+  what makes both "1000 items" and "Bone #001 ≠ Bone #002" work, and it dictates
+  the save strategy.
+  2. Database autoload — scans res://data/**, so adding content = adding a 
+  .tres, not code.
+  3. EventBus autoload — decoupled signals; the backbone of learn-by-doing.
+  4. Generic property + formula system — the Durango heart; recipes reference
+  property keys, never material names.
+  5. Tag-based crafting slots — sharp_material + handle_material, not raptor 
+  bone + acacia.
+  6. Composition for combat & AI — one CombatStats component + behavior modules;
+  no per-creature scripts.
+  7. Save = instances only (definitions rehydrate from .tres).
+  8. Isometric rig + placeholders — visuals last, cubes throughout V1.
+
+  The roadmap
+
+  13 system-first milestones (M0–M12), each ending in something runnable and 
+  verifiable. The critical one is M7, where the full core loop first closes:
+  craft spear → hunt herbivore → get bone → craft better spear → fight predator.
+  M5's verification specifically proves material-driven crafting (same recipe,
+  different materials → different item). Everything maps back to the
+  ADDITIONAL_TASK acceptance checklist; out-of-scope items are allowed-for but
+  not scheduled.
+
+  One deliberate simplification worth flagging: the milestone list reorganizes
+  TASK.md's Phases 0–11 into buildable, testable chunks rather than following
+  them 1:1 — same content, ordered so each step runs.
+  ⎿  User rejected Claude's plan:
+     ╭─────────────────────────────────────────────────────────────────────────╮
+     │ Wildlands V1 — Implementation Roadmap (Planning Deliverable)            │
+     │                                                                         │
+     │ Context                                                                 │
+     │                                                                         │
+     │ Wildlands is a single-player survival RPG in Godot 4.7 / GDScript,      │
+     │ inspired by the                                                         │
+     │ system philosophy of Durango: Wild Lands. The repo today is an empty    │
+     │ Godot project —                                                         │
+     │ default icon.svg, empty assets/ and tools/ folders, no scripts or       │
+     │ scenes. All intent                                                      │
+     │ lives in documents/{TASK,GAME_DESIGN,DATA_SCHEMA,ADDITIONAL_TASK}.md.   │
+     │                                                                         │
+     │ This task is planning only — no Godot code, no scenes. The single       │
+     │ deliverable is a                                                        │
+     │ design document: documents/IMPLEMENTATION_PLAN.md (TASK said docs/, but │
+     │ the repo                                                                │
+     │ convention is documents/). The content below is exactly what that file  │
+     │ will contain.                                                           │
+     │                                                                         │
+     │ Confirmed decisions: content authored as Godot custom Resources         │
+     │ (.tres);                                                                │
+     │ systems written in GDScript.                                            │
+     │                                                                         │
+     │ V1 success = a playable 30–60 min loop, not a tech demo:                │
+     │                                                                         │
+     │ ▎ "I arrived weak, learned the island, crafted better equipment, hunted │
+     │ ▎ stronger                                                              │
+     │ ▎ creatures, and mastered the environment."                             │
+     │                                                                         │
+     │ The design's non-negotiable pillars: preparation-over-power,            │
+     │ material-driven crafting,                                               │
+     │ learn-by-doing progression, meaningful exploration, living ecosystem.   │
+     │ Power must come from                                                    │
+     │ knowledge + materials + skill + preparation, never from random stat     │
+     │ inflation.                                                              │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Architectural Foundation (decide once, everything depends on it)        │
+     │                                                                         │
+     │ 1. Flyweight: Definitions vs Instances                                  │
+     │                                                                         │
+     │ The single most important pattern. It's what makes "1000 items / 100    │
+     │ creatures" survive                                                      │
+     │ and what makes unique-stat items possible.                              │
+     │                                                                         │
+     │ - Definitions = shared, immutable, authored .tres Resources loaded      │
+     │ once. (What a                                                           │
+     │ "raptor bone" is.)                                                      │
+     │ - Instances = per-object runtime data (RefCounted, serializable dicts)  │
+     │ that reference                                                          │
+     │ a definition id + carry unique rolled/overridden properties. (Bone #001 │
+     │ quality 35 vs                                                           │
+     │ Bone #002 quality 80.)                                                  │
+     │                                                                         │
+     │ Definitions are never saved (reloaded from .tres by id); only instances │
+     │ are.                                                                    │
+     │                                                                         │
+     │ 2. Database autoload (content registry)                                 │
+     │                                                                         │
+     │ Scans res://data/** at boot, loads every .tres into typed dictionaries  │
+     │ keyed by id,                                                            │
+     │ and indexes by tag. Systems query Database.get_item("spear") /          │
+     │ Database.by_tag("sharp_material"). This is what makes "add content =    │
+     │ add a .tres                                                             │
+     │ file, not code" literally true.                                         │
+     │                                                                         │
+     │ 3. EventBus autoload (decoupled signals)                                │
+     │                                                                         │
+     │ resource_gathered, item_crafted, creature_killed, skill_xp_gained, etc. │
+     │ Learn-by-                                                               │
+     │ doing, UI, and survival effects subscribe here so systems never         │
+     │ hard-reference each other.                                              │
+     │ This is the backbone of the progression loop.                           │
+     │                                                                         │
+     │ 4. Generic property + formula system (the Durango heart)                │
+     │                                                                         │
+     │ Materials expose a property dict (hardness, density, sharpness,         │
+     │ flexibility, weight, toughness, thickness, quality — sparse, not every  │
+     │ material has every key). MaterialDef                                    │
+     │ composes a base_material + modifiers into resolved properties.          │
+     │                                                                         │
+     │ Recipes reference property keys generically — never material names. A   │
+     │ RecipeDef holds                                                         │
+     │ stat_formulas as data (e.g. damage = [{sharpness:0.7},{hardness:0.3}] + │
+     │ skill_bonus),                                                           │
+     │ evaluated by one generic evaluator. Same recipe + different materials → │
+     │ different item.                                                         │
+     │ No hardcoded Iron + Wood = Sword.                                       │
+     │                                                                         │
+     │ 5. Tag-based crafting slots                                             │
+     │                                                                         │
+     │ RecipeDef.slots = [{name, required_tags}] (e.g. sharp_material,         │
+     │ handle_material).                                                       │
+     │ Crafting matches any inventory instance whose material carries those    │
+     │ tags. Adding a new                                                      │
+     │ valid material = tag it, no recipe edits.                               │
+     │                                                                         │
+     │ 6. Composition for combat & AI (no per-entity scripts)                  │
+     │                                                                         │
+     │ - CombatStats (Health, Stamina, Attack, Defense, Speed, Range,          │
+     │ Cooldown) — reusable                                                    │
+     │ component on player and every creature. One CombatResolver resolves all │
+     │ hits.                                                                   │
+     │ - Creature AI = behavior modules (Passive/Fearful,                      │
+     │ Defensive/Territorial, Aggressive)                                      │
+     │ selected by CreatureDef.behavior. One CreatureController plugs in a     │
+     │ strategy. Adding                                                        │
+     │ a creature = a .tres, not a script.                                     │
+     │                                                                         │
+     │ 7. Save = serialize instances only                                      │
+     │                                                                         │
+     │ All runtime state is plain dicts (inventory instances, skills, player   │
+     │ stats, harvested-node                                                   │
+     │ state, spawns, camp) → one versioned JSON save. Definitions rehydrate   │
+     │ from .tres by id.                                                       │
+     │                                                                         │
+     │ 8. Rendering rig (build early, fill late)                               │
+     │                                                                         │
+     │ Fixed isometric camera rig; 3D primitive placeholders ("cubes") for     │
+     │ player/creatures/                                                       │
+     │ weapons; billboard Sprite3D helper for vegetation/props. Visuals are    │
+     │ LAST — placeholders                                                     │
+     │ throughout V1.                                                          │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Folder Structure (res://)                                               │
+     │                                                                         │
+     │ /core        Database, EventBus, SaveManager, base Resource classes,    │
+     │ formula evaluator                                                       │
+     │ /data        /materials /items /recipes /resource_nodes /creatures      │
+     │ /skills /biomes  (.tres)                                                │
+     │ /entities    /player /creature /resource_node   (scenes + controllers)  │
+     │ /systems     /inventory /crafting /skill /combat /gathering /survival   │
+     │ /world       /island /camp   (scenes, spawn data)                       │
+     │ /ui          /components   (inventory, crafting, HUD)                   │
+     │ /rendering   isometric camera rig, billboard helper                     │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Milestone Roadmap (system-first; each milestone ends runnable +         │
+     │ verifiable)                                                             │
+     │                                                                         │
+     │ ▎ Ordering follows SYSTEM → CONTENT → VISUAL. Every milestone leaves a  │
+     │ ▎ concrete,                                                             │
+     │ ▎ testable result. Content is a handful of placeholder .tres entries    │
+     │ ▎ per milestone.                                                        │
+     │                                                                         │
+     │ M0 — Foundation. Folder scaffold; Database/EventBus/SaveManager         │
+     │ autoload stubs;                                                         │
+     │ isometric camera rig; primitive player moving on a flat plane.          │
+     │ Verify: walk a cube around the plane.                                   │
+     │                                                                         │
+     │ M1 — Data & Material core. Base EntityDef, MaterialDef (base + modifier │
+     │ → resolved                                                              │
+     │ properties), Database loader + tag index, generic formula evaluator.    │
+     │ Verify: test scene loads raptor_bone + large_bone, prints correctly     │
+     │ merged property                                                         │
+     │ dicts; DB tag queries return the right ids.                             │
+     │                                                                         │
+     │ M2 — Items & Inventory. ItemDef, ItemInstance (flyweight, unique        │
+     │ props), Inventory.                                                      │
+     │ Verify: spawn two "bone" instances with divergent quality/sharpness in  │
+     │ one inventory;                                                          │
+     │ inspect list UI.                                                        │
+     │                                                                         │
+     │ M3 — Gathering. ResourceNodeDef + node entity, interaction, drop_table  │
+     │ → ItemInstances                                                         │
+     │ into inventory, emits resource_gathered.                                │
+     │ Verify: chop a tree node → wood instance appears in inventory.          │
+     │                                                                         │
+     │ M4 — Skills. SkillDef, SkillState, XP routed via EventBus (gather →     │
+     │ Gathering XP);                                                          │
+     │ skill modifies gather quality/speed.                                    │
+     │ Verify: repeated gathering raises Gathering skill and measurably        │
+     │ improves output.                                                        │
+     │                                                                         │
+     │ M5 — Crafting. RecipeDef (tag-slots + generic stat_formulas),           │
+     │ CraftingSystem,                                                         │
+     │ crafting UI; craft a spear from handle+tip materials → unique           │
+     │ WeaponInstance; Crafting XP.                                            │
+     │ Verify: same spear recipe with weak vs strong materials yields          │
+     │ measurably different                                                    │
+     │ damage/durability — proves material-driven crafting.                    │
+     │                                                                         │
+     │ M6 — Combat foundation. CombatStats, CombatResolver, player attack with │
+     │ equipped spear,                                                         │
+     │ stamina gating, health.                                                 │
+     │ Verify: attack a target dummy; damage reflects the crafted spear;       │
+     │ stamina depletes/regens.                                                │
+     │                                                                         │
+     │ M7 — Creatures & AI. CreatureDef, CreatureController + behavior modules │
+     │ (passive/                                                               │
+     │ defensive/aggressive), loot on death → material instances (bone/hide);  │
+     │ Hunting XP.                                                             │
+     │ Verify: full core loop — craft spear → hunt fleeing herbivore → get     │
+     │ bone → craft better                                                     │
+     │ spear → fight tracking predator.                                        │
+     │                                                                         │
+     │ M8 — Survival needs. Hunger + Energy; effects (hungry → lower stamina   │
+     │ regen, low energy                                                       │
+     │ → lower gather efficiency). Deliberately minimal.                       │
+     │ Verify: needs decay over time and visibly affect stamina/gathering.     │
+     │                                                                         │
+     │ M9 — Camp. Campfire (cook food instances), storage (shared inventory),  │
+     │ crafting station;                                                       │
+     │ camp state persists.                                                    │
+     │ Verify: cook at fire, deposit/withdraw from storage, craft at station.  │
+     │                                                                         │
+     │ M10 — World assembly. One island via BiomeDef/IslandDef spawn data:     │
+     │ safe / resource /                                                       │
+     │ danger zones populated with nodes + creatures; player start.            │
+     │ Verify: play from spawn; difficulty rises with depth; zones read        │
+     │ distinctly.                                                             │
+     │                                                                         │
+     │ M11 — Save/Load. Serialize all instance state (player, inventory,       │
+     │ skills, world/harvest,                                                  │
+     │ spawns, camp) → versioned JSON; load restores everything.               │
+     │ Verify: gather+craft+kill, save, quit, reload → identical world &       │
+     │ inventory state.                                                        │
+     │                                                                         │
+     │ M12 — Loop polish & acceptance. Tune numbers, pacing, feedback for the  │
+     │ 30–60 min arc.                                                          │
+     │ Verify: run the full acceptance test (below) start to finish.           │
+     │                                                                         │
+     │ ---                                                                     │
+     │ V1 Acceptance Test (from ADDITIONAL_TASK.md)                            │
+     │                                                                         │
+     │ Playable ≥30 min delivering: working island · resource gathering ·      │
+     │ material properties ·                                                   │
+     │ spear crafting · skill improvement · creature AI · Durango-style prep   │
+     │ combat · loot ·                                                         │
+     │ equipment upgrade · camp progression · save/load — producing the        │
+     │ feeling:                                                                │
+     │ "I started weak, learned the environment, prepared equipment, hunted    │
+     │ dangerous creatures,                                                    │
+     │ and became stronger."                                                   │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Explicitly Out of Scope for V1                                          │
+     │                                                                         │
+     │ Multiplayer, trading, NPC economy, taming/breeding, world generation,   │
+     │ multiple islands,                                                       │
+     │ weather sim, story campaign, weapons beyond the spear, armor/structure  │
+     │ crafting trees.                                                         │
+     │ (Architecture must allow these — none get built now.)                   │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Execution Steps (after approval)                                        │
+     │                                                                         │
+     │ 1. Write this roadmap to documents/IMPLEMENTATION_PLAN.md (the only     │
+     │ file this task                                                          │
+     │ produces).                                                              │
+     │ 2. Do not touch the Godot project, create scripts, or add scenes —      │
+     │ implementation                                                          │
+     │ begins in a later, separately-approved session starting at M0.          │
+     │                                                                         │
+     │ Verification of this deliverable                                        │
+     │                                                                         │
+     │ - documents/IMPLEMENTATION_PLAN.md exists and contains the architecture │
+     │ foundation +                                                            │
+     │ milestone roadmap.                                                      │
+     │ - Every milestone has a concrete runnable verification.                 │
+     │ - Cross-check against the four source docs: all V1 required features    │
+     │ (Phases 0–11 / the                                                      │
+     │ acceptance checklist) map to a milestone; nothing out-of-scope is       │
+     │ scheduled.                                                              │
+     ╰─────────────────────────────────────────────────────────────────────────╯
+
+⏺ Handed off. ✅
+
+  Your plan has been sent to Ultraplan for remote refinement. A web link will 
+  appear here in a moment — once the cloud plan is generated, you can use it to
+  edit and iterate on the plan in the browser.
+
+  Feel free to keep working here in the meantime; Claude Code will notify you 
+  when the cloud plan is ready for review, and you'll have the option to
+  teleport the plan back here for implementation once it's approved.
+
+✻ Baked for 2m 58s
+
+❯ ◇ ultraplan                                                                   
+  Starting Claude Code on the web…                                              
+
+❯ ultraplan: session creation failed — Repository has no commits — run `git add 
+  . && git commit -m "initial"` then retry                                      
+
+⏺ The Ultraplan handoff failed — the cloud session couldn't start:
+
+  ▎ Repository has no commits — run git add . && git commit -m "initial" then 
+  ▎ retry
+
+  Ultraplan needs a git commit to snapshot the repo, and this repo is still
+  empty of commits (everything is untracked). Two things stand in the way of me
+  just fixing it:
+
+  1. We're in plan mode, which blocks me from running a commit (or any
+  state-changing action).
+  2. Committing isn't something I'll do unmarked without your go-ahead.
+
+  To proceed, you can run this yourself — type it with the ! prefix so it runs
+  in-session:
+
+  ! git add . && git commit -m "initial: design docs + empty Godot project"
+
+  Then re-trigger the Ultraplan handoff.
+
+  One heads-up before you do: .gitignore currently exists but I haven't
+  inspected whether it excludes Godot's .godot/ cache — right now git add .
+  would sweep in the whole game/.godot/ shader cache (dozens of generated
+  files). Want me to check the .gitignore first and suggest fixes so the initial
+  commit stays clean? I can do that read-only without leaving plan mode.
+
+✻ Cooked for 12s
+
+❯ /ponytail:ponytail                                                            
+⏺ Ponytail full — still active. No code task in flight; the live blocker is the
+  failed Ultraplan commit. Let me check the one thing that matters read-only.
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ .gitignore already excludes .godot/ — the shader cache won't get committed. No
+  cleanup needed.
+
+  So the commit is clean as-is. Run this yourself (plan mode blocks me from
+  committing):
+
+  ! git add . && git commit -m "initial: design docs + empty Godot project"
+
+  Then re-trigger Ultraplan. → skipped: nothing to fix in .gitignore; it's
+  already correct.
+
+✻ Baked for 9s
+
+❯ /ponytail:ponytail |ultra continue ultraplan for this project                 
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ Committed — ca0a50b initial: design docs + empty Godot project, working tree
+  clean. The "nothing to commit" was because the commit landed on the first try;
+  the error was just the retry of the && chain.
+
+  The commit blocker is gone. Re-trigger the Ultraplan handoff now — I can't
+  kick off the cloud session myself (that's the UI action on your side), but the
+  repo now has the commit it was waiting on.
+
+✻ Worked for 17s
+
+❯ /ultraplan retry the plan handoff                                             
+◆ ultraplan ready · https://claude.ai/code/session_01GjM3YdJZWjdW8BVV3w6buR?from=cli
+  ⎿  Press ↓ to view results
+
+※ recap: Goal: get Ultraplan refining the Wildlands V1 implementation plan. The initial git commit it was blocked on is now done. Next: re-trigger the Ultraplan handoff on your side. (disable recaps in /config)
+
+⏺ Ultraplan is ready. ✅
+
+  Open the cloud session to review and iterate on the refined plan:
+  https://claude.ai/code/session_01GjM3YdJZWjdW8BVV3w6buR?from=cli
+
+  Once you've approved it there, you can teleport the plan back here for
+  implementation (starting at M0).
+
+✻ Baked for 3s
