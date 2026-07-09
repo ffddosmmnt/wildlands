@@ -54,6 +54,10 @@ func _ready() -> void:
 	print("\n-- Creature (data-driven, closes the survival loop) --")
 	_run_creature_checks(spear_a)
 
+	# --- World glue: a real Player node drives the same systems via interaction ---
+	print("\n-- World glue (player node drives the systems) --")
+	_run_world_glue_checks()
+
 	print("\ncrafting skill: L%d (%.1f xp)   gathering skill: L%d (%.1f xp)" % [
 		SkillSystem.get_level("crafting"), SkillSystem.get_xp("crafting"),
 		SkillSystem.get_level("gathering"), SkillSystem.get_xp("gathering")])
@@ -150,6 +154,68 @@ func _run_creature_checks(starter_spear: ItemInstance) -> void:
 		starter_spear.get_stat("damage"),
 		upgraded.get_stat("damage") if upgraded != null else 0.0,
 		swings, SkillSystem.get_level("hunting"), SkillSystem.get_xp("hunting")])
+
+
+## Drives a real Player node through the full loop with no input events — proves
+## the presentation glue (interact routing, gather, craft+equip, fight, loot)
+## wires into the systems, not just the systems in isolation.
+func _run_world_glue_checks() -> void:
+	var player := Player.new()
+	add_child(player)                       # _ready builds combat/inventory/interactor/hud
+	player.global_position = Vector3.ZERO
+
+	# Gather a sharp material (stone) via the interaction router.
+	var stone := _place_interactable("stone_common", Vector3(1, 0, 0))
+	player._interact()
+	var got_sharp := player.inventory.query_by_tag("sharp_material").size() > 0
+	stone.global_position = Vector3(999, 0, 0)   # move out of range so it isn't "nearest" next
+
+	# Gather two handles (wood) — one per craft below.
+	var tree := _place_interactable("tree_basic", Vector3(1, 0, 0))
+	player._interact()
+	player._interact()
+	var got_handles := player.inventory.query_by_tag("handle_material").size() >= 2
+	_check(got_sharp and got_handles, "player gathers sharp + handles via interact (E)")
+
+	# Craft + auto-equip a spear, consuming its inputs.
+	var inv_before := player.inventory.count()
+	player._craft_spear()
+	var starter := player.combat.equipped_weapon
+	_check(starter != null, "player crafts and auto-equips a spear (C)")
+	_check(player.inventory.count() < inv_before, "crafting consumed the input materials")
+	tree.global_position = Vector3(999, 0, 0)
+
+	# Fight + loot a predator via the interaction router.
+	var starter_dmg: float = starter.get_stat("damage") if starter != null else 0.0
+	var cnode := CreatureNode.new()
+	cnode.creature_id = "predator_medium"
+	add_child(cnode)
+	cnode.global_position = Vector3(1, 0, 0)     # within spear reach
+	var guard := 0
+	while cnode.creature != null and cnode.creature.is_alive() and guard < 100:
+		player._interact()
+		player.combat.regen_stamina(1.0)
+		guard += 1
+	_check(cnode.creature != null and not cnode.creature.is_alive(), "player kills predator via interact (E)")
+	_check(player.inventory.query_by_def("bone_predator").size() > 0, "kill drops loot into player inventory")
+
+	# Craft a better spear from the looted bone (in-world loop closed).
+	player._craft_spear()
+	var upgraded_dmg: float = player.combat.equipped_weapon.get_stat("damage")
+	_check(upgraded_dmg > starter_dmg, "looted bone crafts a stronger spear in-world (loop closed)")
+
+	print("  in-world: starter dmg %.0f -> upgraded dmg %.0f (killed predator in %d swings)" % [
+		starter_dmg, upgraded_dmg, guard])
+	player.queue_free()
+
+
+func _place_interactable(res_id: String, pos: Vector3) -> ResourceNode:
+	var node := ResourceNode.new()
+	node.resource_id = res_id
+	node.add_to_group("interactable")
+	add_child(node)
+	node.global_position = pos
+	return node
 
 
 func _run_combat_checks(spear_a: ItemInstance, spear_b: ItemInstance) -> void:

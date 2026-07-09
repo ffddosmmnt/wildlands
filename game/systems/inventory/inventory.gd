@@ -8,8 +8,6 @@ extends Resource
 
 @export var items: Array[ItemInstance] = []
 
-signal changed()
-
 
 func add(instance: ItemInstance) -> void:
 	if instance == null:
@@ -17,10 +15,8 @@ func add(instance: ItemInstance) -> void:
 	for existing in items:
 		if existing.is_stackable_with(instance):
 			existing.quantity += instance.quantity
-			changed.emit()
 			return
 	items.append(instance)
-	changed.emit()
 
 
 func remove(instance: ItemInstance) -> bool:
@@ -28,7 +24,6 @@ func remove(instance: ItemInstance) -> bool:
 	if idx == -1:
 		return false
 	items.remove_at(idx)
-	changed.emit()
 	return true
 
 
