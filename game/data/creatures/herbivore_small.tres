@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="GameEntity" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/game_entity.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "herbivore_small"
+display_name = "Small Herbivore"
+description = "A skittish plant-eater. Flees on sight. Early hunting practice; yields small bone."
+type = "creature"
+tags = Array[String](["creature", "herbivore"])
+properties = {
+"aggression_range": 6.0,
+"behavior": "passive",
+"diet": "herbivore",
+"drop_table": [{
+"base_quality": 30.0,
+"material": "bone_small"
+}],
+"size": "small",
+"species": "small_herbivore",
+"stats": {
+"attack": 2.0,
+"attack_range": 1.0,
+"defense": 1.0,
+"health": 30.0,
+"speed": 5.0,
+"stamina": 40.0
+}
+}

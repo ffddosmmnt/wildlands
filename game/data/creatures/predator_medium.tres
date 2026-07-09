@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="GameEntity" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/game_entity.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "predator_medium"
+display_name = "Medium Predator"
+description = "Tracks and attacks. A real fight; yields predator bone for a superior spear tip."
+type = "creature"
+tags = Array[String](["creature", "predator"])
+properties = {
+"aggression_range": 10.0,
+"behavior": "aggressive",
+"diet": "carnivore",
+"drop_table": [{
+"base_quality": 60.0,
+"material": "bone_predator"
+}],
+"size": "medium",
+"species": "medium_predator",
+"stats": {
+"attack": 6.0,
+"attack_range": 1.5,
+"defense": 2.0,
+"health": 60.0,
+"speed": 4.0,
+"stamina": 60.0
+}
+}

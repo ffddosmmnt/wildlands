@@ -50,6 +50,10 @@ func _ready() -> void:
 	print("\n-- Combat (equipment-driven, same spears) --")
 	_run_combat_checks(spear_a, spear_b)
 
+	# --- Creature loop: hunt a creature, loot its material, craft a better spear ---
+	print("\n-- Creature (data-driven, closes the survival loop) --")
+	_run_creature_checks(spear_a)
+
 	print("\ncrafting skill: L%d (%.1f xp)   gathering skill: L%d (%.1f xp)" % [
 		SkillSystem.get_level("crafting"), SkillSystem.get_xp("crafting"),
 		SkillSystem.get_level("gathering"), SkillSystem.get_xp("gathering")])
@@ -93,6 +97,59 @@ func _print_spear(label: String, spear: ItemInstance) -> void:
 	print("  %s -> damage %.1f | durability %.1f | weight %.1f | atk_speed %.2f" % [
 		label, spear.get_stat("damage"), spear.get_stat("durability"),
 		spear.get_stat("weight"), spear.get_stat("attack_speed")])
+
+
+func _run_creature_checks(starter_spear: ItemInstance) -> void:
+	if starter_spear == null:
+		_check(false, "creature: starter spear available")
+		return
+
+	# Creatures come from data; behavior is a data-selected module.
+	var herbivore := CreatureInstance.spawn("herbivore_small")
+	var predator := CreatureInstance.spawn("predator_medium")
+	_check(herbivore != null and predator != null, "creatures spawned from data")
+	if herbivore == null or predator == null:
+		return
+
+	_check(herbivore.decide(2.0) == CreatureBehavior.Intent.FLEE,
+		"passive herbivore flees when player is near")
+	_check(predator.decide(1.0) == CreatureBehavior.Intent.ATTACK,
+		"aggressive predator attacks in range")
+	_check(predator.decide(5.0) == CreatureBehavior.Intent.APPROACH,
+		"aggressive predator approaches from afar")
+
+	# 1 + 2. Fight and kill the predator with the (weak) starting spear.
+	var player := CombatEntity.from_stats({
+		"name": "Player", "health": 100, "stamina": 100, "attack": 5, "defense": 3})
+	player.equip(starter_spear)
+	var reach: float = CombatSystem.resolve_weapon(starter_spear)["range"]
+	var swings := 0
+	while predator.is_alive() and swings < 50:
+		var res := CombatSystem.attack(player, predator.combat, reach - 0.5)
+		if res.reason == "no_stamina":
+			player.regen_stamina(1.0)   # a beat of recovery between strikes
+		swings += 1
+	_check(not predator.is_alive(), "predator killed with the starting spear")
+
+	# 3. Receive material drops (hunting skill + tool influence quality).
+	var loot := predator.generate_loot(SkillSystem.get_bonus("hunting"), starter_spear.get_stat("damage"))
+	_check(loot.size() > 0, "killed predator drops material")
+	var bone: ItemInstance = loot[0] if loot.size() > 0 else null
+	_check(bone != null and Database.get_entity(bone.def_id).has_tag("sharp_material"),
+		"drop is a usable sharp material")
+	_check(SkillSystem.get_xp("hunting") > 0.0 or SkillSystem.get_level("hunting") > 0,
+		"hunting skill gained XP from the kill (learn-by-doing)")
+
+	# 4 + 5. Use the creature material to craft a better spear than the starter.
+	var handle := _gather_one("tree_hardwood")
+	var upgraded := _craft_spear(bone, handle)
+	_check(upgraded != null and upgraded.get_stat("damage") > starter_spear.get_stat("damage"),
+		"looted material crafts a stronger spear (survival loop closed)")
+
+	print("  starter spear dmg %.1f -> looted-bone spear dmg %.1f | predator down in %d swings | hunting L%d (%.0f xp)" % [
+		starter_spear.get_stat("damage"),
+		upgraded.get_stat("damage") if upgraded != null else 0.0,
+		swings, SkillSystem.get_level("hunting"), SkillSystem.get_xp("hunting")])
 
 
 func _run_combat_checks(spear_a: ItemInstance, spear_b: ItemInstance) -> void:
