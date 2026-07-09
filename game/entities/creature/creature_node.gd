@@ -23,7 +23,8 @@ func _ready() -> void:
 		return
 	add_to_group("interactable")
 	add_to_group("creature")
-	_build_placeholder()
+	_build_visual()
+	_build_collider()
 
 
 func _physics_process(delta: float) -> void:
@@ -62,19 +63,11 @@ func _try_attack_player(dist: float) -> void:
 		_attack_cd = ATTACK_COOLDOWN
 
 
-func _build_placeholder() -> void:
-	var diet := String(creature.def.get_property("diet", ""))
-	var color := Color(0.8, 0.2, 0.2) if diet == "carnivore" else Color(0.35, 0.7, 0.35)
-	var mesh := MeshInstance3D.new()
-	var capsule := CapsuleMesh.new()
-	capsule.radius = 0.4
-	capsule.height = 1.4
-	mesh.mesh = capsule
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mesh.material_override = mat
-	mesh.position.y = 0.7
-	add_child(mesh)
+func _build_visual() -> void:
+	VisualComponent.attach(self, creature.def.get_property("visual", {}))
+
+
+func _build_collider() -> void:
 	var col := CollisionShape3D.new()
 	var shape := CapsuleShape3D.new()
 	shape.radius = 0.4

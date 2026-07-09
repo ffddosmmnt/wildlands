@@ -26,5 +26,10 @@ properties = {
 "health": 30.0,
 "speed": 5.0,
 "stamina": 40.0
+},
+"visual": {
+"color": [0.35, 0.7, 0.35],
+"shape": "capsule",
+"size": [0.8, 1.4, 0.8]
 }
 }

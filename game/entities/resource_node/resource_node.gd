@@ -18,6 +18,8 @@ func _ready() -> void:
 	definition = Database.get_entity(resource_id)
 	if definition == null:
 		push_warning("[ResourceNode] unknown resource_id '%s'" % resource_id)
+		return
+	VisualComponent.attach(self, definition.get_property("visual", {}))
 
 
 func is_depleted() -> bool:

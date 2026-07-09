@@ -11,6 +11,11 @@ const ISO_YAW := 45.0            # ponytail: matches the camera yaw; tune togeth
 const INTERACT_RANGE := 2.8
 const HEALTH_REGEN := 3.0        # per second; keeps a fight survivable, not trivial
 
+## Assign a real character model here (in the scene/inspector) to replace the
+## placeholder — no code change needed. Null = placeholder capsule.
+@export var visual_scene: PackedScene
+const _PLACEHOLDER_VISUAL := {"shape": "capsule", "color": [0.25, 0.5, 0.95], "size": [0.8, 1.6, 0.8]}
+
 var inventory := Inventory.new()
 var combat: CombatEntity
 var _interactor: Interactor
@@ -25,7 +30,8 @@ func _ready() -> void:
 	combat = CombatEntity.from_stats({
 		"name": "Player", "health": 100, "stamina": 100, "attack": 5, "defense": 3})
 	_spawn_pos = global_position
-	_build_body()
+	_build_visual()
+	_build_collider()
 	_build_camera()
 	_build_hud()
 	_interactor = Interactor.new()
@@ -138,17 +144,14 @@ func _respawn() -> void:
 
 # --- Placeholder presentation (not final UI/assets) ---
 
-func _build_body() -> void:
-	var mesh := MeshInstance3D.new()
-	var capsule := CapsuleMesh.new()
-	capsule.radius = 0.4
-	capsule.height = 1.6
-	mesh.mesh = capsule
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.25, 0.5, 0.95)
-	mesh.material_override = mat
-	mesh.position.y = 0.8
-	add_child(mesh)
+func _build_visual() -> void:
+	var spec: Dictionary = _PLACEHOLDER_VISUAL
+	if visual_scene != null:
+		spec = {"scene": visual_scene.resource_path}
+	VisualComponent.attach(self, spec)
+
+
+func _build_collider() -> void:
 	var col := CollisionShape3D.new()
 	var shape := CapsuleShape3D.new()
 	shape.radius = 0.4

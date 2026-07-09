@@ -14,5 +14,10 @@ properties = {
 "drop_table": [{
 "base_quality": 55.0,
 "material": "wood_hard"
-}]
+}],
+"visual": {
+"color": [0.15, 0.4, 0.15],
+"shape": "box",
+"size": [0.9, 3.0, 0.9]
+}
 }

@@ -10,10 +10,10 @@ func _ready() -> void:
 	_spawn_player(Vector3(0, 0.0, 0))
 
 	# Resource zone: wood (handle) + stone (first sharp tip) — the starter spear.
-	_spawn_resource("tree_basic", Vector3(-4, 0, -3), 2.6, Color(0.2, 0.5, 0.2))
-	_spawn_resource("tree_hardwood", Vector3(-6, 0, 1), 3.0, Color(0.15, 0.4, 0.15))
-	_spawn_resource("stone_common", Vector3(3, 0, -4), 0.8, Color(0.5, 0.5, 0.55))
-	_spawn_resource("stone_common", Vector3(5, 0, 0), 0.8, Color(0.5, 0.5, 0.55))
+	_spawn_resource("tree_basic", Vector3(-4, 0, -3))
+	_spawn_resource("tree_hardwood", Vector3(-6, 0, 1))
+	_spawn_resource("stone_common", Vector3(3, 0, -4))
+	_spawn_resource("stone_common", Vector3(5, 0, 0))
 
 	# Danger zone: hunt the predator for bone_predator -> the upgraded spear.
 	_spawn_creature("herbivore_small", Vector3(-9, 0, 6))
@@ -43,19 +43,10 @@ func _spawn_player(pos: Vector3) -> void:
 	p.global_position = pos + Vector3(0, 0.0, 0)
 
 
-func _spawn_resource(res_id: String, pos: Vector3, height: float, color: Color) -> void:
+func _spawn_resource(res_id: String, pos: Vector3) -> void:
 	var node := ResourceNode.new()
 	node.resource_id = res_id
-	node.add_to_group("interactable")
-	var mi := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(0.9, height, 0.9)
-	mi.mesh = box
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mi.material_override = mat
-	mi.position.y = height * 0.5
-	node.add_child(mi)
+	node.add_to_group("interactable")   # visual comes from the resource's data (VisualComponent)
 	add_child(node)
 	node.global_position = pos
 
