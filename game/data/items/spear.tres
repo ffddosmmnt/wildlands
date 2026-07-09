@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/item_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "spear"
+display_name = "Spear"
+description = "Long reach, safer hunting, strong against large creatures. Slow."
+type = "item"
+tags = Array[String](["weapon", "spear"])
+properties = {}
+category = "weapon"
+material_slots = Array[String](["tip", "handle"])

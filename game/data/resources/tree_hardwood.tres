@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GameEntity" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/game_entity.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "tree_hardwood"
+display_name = "Hardwood Tree"
+description = "A dense, mature tree. Yields hardwood."
+type = "resource_node"
+tags = Array[String](["tree", "wood_source"])
+properties = {
+"biome": "tropical_forest",
+"drop_table": [{
+"base_quality": 55.0,
+"material": "wood_hard"
+}]
+}

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="MaterialDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/material_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "stone_sharp"
+display_name = "Sharp Stone"
+description = "A knappable stone. Hard and cutting, but heavy and brittle."
+type = "material"
+tags = Array[String](["stone_source", "sharp_material"])
+properties = {}
+base_material = "stone"
+base_properties = {
+"density": 50.0,
+"hardness": 55.0,
+"sharpness": 35.0,
+"weight": 10.0
+}
+modifiers = {}

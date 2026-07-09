@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="MaterialDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/material_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "wood_hard"
+display_name = "Hardwood"
+description = "Dense and sturdy. Heavier, but a reliable handle."
+type = "material"
+tags = Array[String](["wood_source", "handle_material"])
+properties = {}
+base_material = "wood"
+base_properties = {
+"flexibility": 25.0,
+"hardness": 45.0,
+"weight": 14.0
+}
+modifiers = {}

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GameEntity" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/game_entity.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "carcass_small"
+display_name = "Small Carcass"
+description = "Remains of a small creature. Harvest for small bone. (In full V1 this comes from hunting.)"
+type = "resource_node"
+tags = Array[String](["carcass", "bone_source"])
+properties = {
+"biome": "tropical_forest",
+"drop_table": [{
+"base_quality": 35.0,
+"material": "bone_small"
+}]
+}

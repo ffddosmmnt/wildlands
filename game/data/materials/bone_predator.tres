@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MaterialDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://core/material_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "bone_predator"
+display_name = "Predator Bone"
+description = "From a large predator. Hard and keen — a superior spear tip."
+type = "material"
+tags = Array[String](["bone_source", "sharp_material"])
+properties = {}
+base_material = "bone"
+base_properties = {
+"density": 20.0,
+"hardness": 25.0,
+"sharpness": 40.0,
+"weight": 3.0
+}
+modifiers = {
+"density": 35.0,
+"hardness": 40.0,
+"sharpness": 50.0,
+"weight": 6.0
+}

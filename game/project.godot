@@ -10,9 +10,17 @@ config_version=5
 
 [application]
 
-config/name="New Game Project"
+config/name="Wildlands Survival RPG"
+run/main_scene="res://world/island/test_slice.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Database="*res://core/database.gd"
+EventBus="*res://core/event_bus.gd"
+SkillSystem="*res://systems/skill/skill_system.gd"
+SaveManager="*res://save/save_manager.gd"
 
 [display]
 
